@@ -30,6 +30,9 @@ def _hash_token(token):
 def _user_response(user):
     return {"id": user["id"], "email": user["email"]}
 
+def _bill_response(bill):
+    return {"id": bill["id"], "description": bill["description"], "amount": bill["amount"], "paid_by": bill["paid_by"], "due_date": bill["due_date"]}
+
 
 def register_user(email, password):
     normalized_email = email.strip().lower()
@@ -101,13 +104,49 @@ def list_scheduled_bills(user_id):
 def create_scheduled_bill(user_id, description, amount, due_date, frequency):
     raise NotImplementedError
 
+def delete_bill(user_id, bill_id):
+    database = get_db()
+
+    cursor = database.execute(
+            """
+            DELETE FROM bills
+            WHERE bills.user_id = ? AND bills.id = ?
+            """,
+            (user_id, bill_id),
+        )
+    database.commit()
+    return {}
+
 
 def list_bills(user_id):
-    raise NotImplementedError
+    database = get_db()
+
+    cursor = database.execute(
+            """
+            SELECT bills.*
+            FROM bills
+            WHERE bills.user_id = ?
+            """,
+            (user_id,),
+        )
+    bills = []
+    for b in cursor.fetchall():
+        bills.append(_bill_response(b))
+    return bills
 
 
 def create_bill(user_id, description, amount, paid_by, due_date=None):
-    raise NotImplementedError
+    database = get_db()
+
+    cursor = database.execute(
+            """
+            INSERT INTO bills (user_id, description, amount, paid_by, due_date)
+            VALUES(?,?,?,?,?)
+            """,
+            (user_id, description, amount, paid_by, due_date),
+        )
+    database.commit()
+    return {"id": cursor.lastrowid}
 
 
 def list_shared_bills(household_id):
