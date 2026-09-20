@@ -33,6 +33,9 @@ def _user_response(user):
 def _bill_response(bill):
     return {"id": bill["id"], "description": bill["description"], "amount": bill["amount"], "paid_by": bill["paid_by"], "due_date": bill["due_date"]}
 
+def _scheduled_bill_response(scheduled_bills):
+    return{"id:": scheduled_bills["id"], "description": scheduled_bills["description"], "amount": scheduled_bills["amount"], "due_date": scheduled_bills["due_date"], "frequency": scheduled_bills["frequency"]}
+
 
 def register_user(email, password):
     normalized_email = email.strip().lower()
@@ -98,11 +101,46 @@ def get_user_from_session(session_token):
 
 
 def list_scheduled_bills(user_id):
-    raise NotImplementedError
+    database = get_db()
+    cursor = database.execute(
+            """
+            SELECT scheduled_bills.*
+            FROM scheduled_bills
+            WHERE scheduled_bills.user_id = ?
+            """,
+            (user_id,),
+        )
+    bills = []
+    for b in cursor.fetchall():
+        bills.append(_scheduled_bill_response(b))
+    return bills
+
+def delete_scheduled_bill(user_id, bill_id):
+    database = get_db()
+    cursor = database.execute(
+        """
+        DELETE FROM scheduled_bills
+        WHERE scheduled_bills.user_id = ? AND scheduled_bills.id = ?
+        """,
+        (user_id, bill_id),
+    )
+
+    database.commit()
+    return {}
 
 
 def create_scheduled_bill(user_id, description, amount, due_date, frequency):
-    raise NotImplementedError
+    database = get_db()
+
+    cursor = database.execute(
+            """
+            INSERT INTO scheduled_bills (user_id, description, amount, due_date, frequency)
+            VALUES(?,?,?,?,?)
+            """,
+            (user_id, description, amount, due_date, frequency),
+        )
+    database.commit()
+    return {"id": cursor.lastrowid}
 
 def delete_bill(user_id, bill_id):
     database = get_db()

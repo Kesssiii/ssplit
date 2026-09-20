@@ -81,20 +81,32 @@ def current_user():
 @api.get("/scheduled-bills")
 @authenticated_route
 def get_scheduled_bills():
-    return not_implemented("Scheduled bills")
+   user_id = g.current_user["id"]
+   return data.list_scheduled_bills(user_id)
 
 
 @api.post("/scheduled-bills")
 @authenticated_route
-def schedule_bill():
-    return not_implemented("Scheduled bills")
+def create_scheduled_bill():
+    user_id = g.current_user["id"]
+    payload = request.get_json(silent=True) or {}
+    description = payload.get("description", "")
+    amount = payload.get("amount", "")
+    frequency = payload.get("frequency", "")
+    due_date = payload.get("due_date", "")
+    return data.create_scheduled_bill(user_id, description, amount, frequency, due_date)
 
+
+@api.delete("/scheduled-bills/<int:scheduled_bill_id>")
+@authenticated_route
+def delete_scheduled_bill(scheduled_bill_id):
+    user_id = g.current_user["id"]
+    return data.delete_scheduled_bill(user_id, scheduled_bill_id)
 
 @api.get("/bills")
 @authenticated_route
 def get_bills():
     user_id = g.current_user["id"]
-    print(user_id)
     return data.list_bills(user_id)
 
 @api.delete("/bills/<int:bill_id>")
