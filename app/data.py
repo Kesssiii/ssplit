@@ -99,6 +99,19 @@ def get_user_from_session(session_token):
     ).fetchone()
     return _user_response(session) if session is not None else None
 
+def list_users():
+    database = get_db()
+    cursor = database.execute(
+            """
+            SELECT users.*
+            FROM users
+            """,
+        )
+    users = []
+    for user in cursor.fetchall():
+        users.append(_user_response(user))
+    return users
+
 
 def list_scheduled_bills(user_id):
     database = get_db()
@@ -111,8 +124,8 @@ def list_scheduled_bills(user_id):
             (user_id,),
         )
     bills = []
-    for b in cursor.fetchall():
-        bills.append(_scheduled_bill_response(b))
+    for bill in cursor.fetchall():
+        bills.append(_scheduled_bill_response(bill))
     return bills
 
 def delete_scheduled_bill(user_id, bill_id):
@@ -163,9 +176,7 @@ def list_bills(user_id):
             """
             SELECT bills.*
             FROM bills
-            WHERE bills.user_id = ?
             """,
-            (user_id,),
         )
     bills = []
     for b in cursor.fetchall():
@@ -173,26 +184,18 @@ def list_bills(user_id):
     return bills
 
 
-def create_bill(user_id, description, amount, paid_by, due_date=None):
+def create_bill(user_id, description, amount, paid_by, split_between, due_date=None):
     database = get_db()
 
     cursor = database.execute(
             """
-            INSERT INTO bills (user_id, description, amount, paid_by, due_date)
-            VALUES(?,?,?,?,?)
+            INSERT INTO bills (user_id, description, amount, paid_by, due_date, split_between)
+            VALUES(?,?,?,?,?,?)
             """,
-            (user_id, description, amount, paid_by, due_date),
+            (user_id, description, amount, paid_by, due_date, split_between),
         )
     database.commit()
     return {"id": cursor.lastrowid}
-
-
-def list_shared_bills(household_id):
-    raise NotImplementedError
-
-
-def create_shared_bill(household_id, description, amount, split_between, paid_by):
-    raise NotImplementedError
 
 
 def get_expense_overview(user_id, start_date=None, end_date=None):

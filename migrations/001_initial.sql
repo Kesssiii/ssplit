@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS bills (
     paid_by TEXT NOT NULL,
     due_date TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    split_between TEXT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
@@ -35,14 +36,4 @@ CREATE TABLE IF NOT EXISTS scheduled_bills (
     frequency TEXT NOT NULL,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
-);
-
-CREATE TABLE IF NOT EXISTS shared_bills (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    household_id INTEGER NOT NULL,
-    description TEXT NOT NULL,
-    amount REAL NOT NULL CHECK (amount > 0),
-    split_between TEXT NOT NULL,
-    paid_by TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );

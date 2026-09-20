@@ -77,6 +77,11 @@ def logout():
 def current_user():
     return jsonify({"user": g.current_user})
 
+@api.get("/users")
+@authenticated_route
+def get_users():
+    return data.list_users()
+
 
 @api.get("/scheduled-bills")
 @authenticated_route
@@ -106,8 +111,7 @@ def delete_scheduled_bill(scheduled_bill_id):
 @api.get("/bills")
 @authenticated_route
 def get_bills():
-    user_id = g.current_user["id"]
-    return data.list_bills(user_id)
+    return data.list_bills()
 
 @api.delete("/bills/<int:bill_id>")
 @authenticated_route
@@ -125,19 +129,8 @@ def create_bill():
     amount = payload.get("amount", "")
     paid_by = payload.get("paid_by", "")
     due_date = payload.get("due_date", "")
-    return data.create_bill(user_id, description, amount, paid_by, due_date)
-
-
-@api.get("/shared-bills")
-@authenticated_route
-def get_shared_bills():
-    return not_implemented("Shared bills")
-
-
-@api.post("/shared-bills")
-@authenticated_route
-def create_shared_bill():
-    return not_implemented("Shared bills")
+    split_between = payload.get("split_between", "")
+    return data.create_bill(user_id, description, amount, paid_by, split_between, due_date)
 
 
 @api.get("/expenses/overview")
