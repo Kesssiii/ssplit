@@ -169,7 +169,7 @@ def delete_bill(user_id, bill_id):
     return {}
 
 
-def list_bills(user_id):
+def list_bills():
     database = get_db()
 
     cursor = database.execute(

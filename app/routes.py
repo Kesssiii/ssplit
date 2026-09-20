@@ -98,8 +98,11 @@ def create_scheduled_bill():
     description = payload.get("description", "")
     amount = payload.get("amount", "")
     frequency = payload.get("frequency", "")
+    if not frequency == "daily" and not frequency == "monthly" and not frequency == "yearly":
+            return jsonify({"error": "invalid format"})
     due_date = payload.get("due_date", "")
     return data.create_scheduled_bill(user_id, description, amount, frequency, due_date)
+
 
 
 @api.delete("/scheduled-bills/<int:scheduled_bill_id>")
