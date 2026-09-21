@@ -82,6 +82,17 @@ def current_user():
 def get_users():
     return data.list_users()
 
+@api.get("/users/find")
+@authenticated_route
+def find_user():
+    return data.find_user()
+
+@api.delete("/auth/me")
+@authenticated_route
+def delete_user():
+    user_id = g.current_user["id"]
+    return data.delete_user(user_id)
+
 
 @api.get("/scheduled-bills")
 @authenticated_route

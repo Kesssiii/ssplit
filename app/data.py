@@ -28,7 +28,7 @@ def _hash_token(token):
 
 
 def _user_response(user):
-    return {"id": user["id"], "email": user["email"]}
+    return {"id": user["id"], "email": user["email"], "user_name": user["user_name"]}
 
 def _bill_response(bill):
     return {"id": bill["id"], "description": bill["description"], "amount": bill["amount"], "paid_by": bill["paid_by"], "due_date": bill["due_date"]}
@@ -99,6 +99,19 @@ def get_user_from_session(session_token):
     ).fetchone()
     return _user_response(session) if session is not None else None
 
+def delete_user(id):
+    database = get_db()
+    cursor = database.execute(
+    """
+    DELETE FROM users
+    WHERE users.id = ?
+    """,
+    (id,),
+    )
+    database.commit()
+    return {}
+
+
 def list_users():
     database = get_db()
     cursor = database.execute(
@@ -111,7 +124,6 @@ def list_users():
     for user in cursor.fetchall():
         users.append(_user_response(user))
     return users
-
 
 def list_scheduled_bills(user_id):
     database = get_db()
