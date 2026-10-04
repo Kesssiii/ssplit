@@ -37,13 +37,16 @@ def register():
     payload = request.get_json(silent=True) or {}
     email = payload.get("email", "")
     password = payload.get("password", "")
+    username = payload.get("username", "")
     if not isinstance(email, str) or "@" not in email:
-        return jsonify({"error": "A valid email is required"}), 400
+        return jsonify({"error": f"A valid email is required. {email} is invalid"}), 400
     if not isinstance(password, str) or len(password) < 8:
         return jsonify({"error": "Password must be at least 8 characters"}), 400
+    if not isinstance(username, str) or len(username) < 2:
+        return jsonify({"error": "Username must be at least 2 characters"}), 400
 
     try:
-        user = data.register_user(email, password)
+        user = data.register_user(username,email, password)
     except ValueError as error:
         return jsonify({"error": str(error)}), 409
     return jsonify({"user": user}), 201
@@ -112,7 +115,7 @@ def create_scheduled_bill():
     if not frequency == "daily" and not frequency == "monthly" and not frequency == "yearly":
             return jsonify({"error": "invalid format"})
     due_date = payload.get("due_date", "")
-    return data.create_scheduled_bill(user_id, description, amount, frequency, due_date)
+    return data.create_scheduled_bill(user_id, description, amount, due_date, frequency)
 
 
 

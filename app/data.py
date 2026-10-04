@@ -31,13 +31,13 @@ def _user_response(user):
     return {"id": user["id"], "email": user["email"], "user_name": user["user_name"]}
 
 def _bill_response(bill):
-    return {"id": bill["id"], "description": bill["description"], "amount": bill["amount"], "paid_by": bill["paid_by"], "due_date": bill["due_date"]}
+    return {"id": bill["id"], "description": bill["description"], "amount": bill["amount"], "paid_by": bill["paid_by"], "due_date": bill["due_date"], "split_between": bill["split_between"]}
 
 def _scheduled_bill_response(scheduled_bills):
-    return{"id:": scheduled_bills["id"], "description": scheduled_bills["description"], "amount": scheduled_bills["amount"], "due_date": scheduled_bills["due_date"], "frequency": scheduled_bills["frequency"]}
+    return {"id": scheduled_bills["id"], "description": scheduled_bills["description"], "amount": scheduled_bills["amount"], "due_date": scheduled_bills["due_date"], "frequency": scheduled_bills["frequency"]}
 
 
-def register_user(email, password):
+def register_user(username,email, password):
     normalized_email = email.strip().lower()
     salt = secrets.token_bytes(16)
     password_hash = _hash_password(password, salt)
@@ -46,12 +46,13 @@ def register_user(email, password):
     try:
         cursor = database.execute(
             """
-            INSERT INTO users (email, password_hash, password_salt)
-            VALUES (?, ?, ?)
+            INSERT INTO users (user_name,email, password_hash, password_salt)
+            VALUES (?,?, ?, ?)
             """,
-            (normalized_email, password_hash, salt.hex()),
+            (username,normalized_email, password_hash, salt.hex()),
         )
     except sqlite3.IntegrityError as error:
+        print(f"IntegrityError: {error}")
         raise ValueError("An account with that email already exists") from error
 
     database.commit()

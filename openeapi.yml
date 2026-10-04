@@ -359,6 +359,9 @@ components:
           type: string
           format: email
           example: user@example.com
+        user_name:
+          type: string
+          example: Noah
 
     UserResponse:
       type: object
@@ -426,6 +429,9 @@ components:
           type: integer
           nullable: true
           example: 1
+        split_between:
+          type: string
+          example: "1,2,3"
         due_date:
           type: string
           nullable: true
