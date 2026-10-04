@@ -17,6 +17,7 @@ paths:
     get:
       summary: API health check
       operationId: healthCheck
+      security: []
       responses:
         "200":
           description: Service is healthy
@@ -33,6 +34,7 @@ paths:
     post:
       summary: Register a new user
       operationId: registerUser
+      security: []
       requestBody:
         required: true
         content:
@@ -63,6 +65,7 @@ paths:
     post:
       summary: Log in and create a session
       operationId: loginUser
+      security: []
       requestBody:
         required: true
         content:
@@ -129,6 +132,25 @@ paths:
                 properties:
                   user:
                     $ref: "#/components/schemas/User"
+        "401":
+          description: Invalid or expired token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      summary: Delete the current user's account
+      operationId: deleteCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Account deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
         "401":
           description: Invalid or expired token
           content:
@@ -339,7 +361,7 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT
+      bearerFormat: Opaque
 
   schemas:
     ErrorResponse:
@@ -372,18 +394,23 @@ components:
     RegisterRequest:
       type: object
       required:
+        - username
         - email
         - password
       properties:
+        username:
+          type: string
+          minLength: 2
+          example: Test User
         email:
           type: string
           format: email
-          example: user@example.com
+          example: test@test.com
         password:
           type: string
           format: password
           minLength: 8
-          example: secret123
+          example: Testtest
 
     LoginRequest:
       type: object
@@ -394,11 +421,11 @@ components:
         email:
           type: string
           format: email
-          example: user@example.com
+          example: test@test.com
         password:
           type: string
           format: password
-          example: secret123
+          example: Testtest
 
     LoginResponse:
       type: object
