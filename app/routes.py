@@ -153,4 +153,5 @@ def create_bill():
 @api.get("/expenses/overview")
 @authenticated_route
 def expense_overview():
-    return not_implemented("Expense overview")
+    user_id = g.current_user["id"]
+    return data.get_expense_overview(user_id)

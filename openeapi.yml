@@ -343,12 +343,12 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        "501":
-          description: Feature not implemented yet
+        "200":
+          description: Expense overview returned successfully
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/ExpenseOverviewResponse"
         "401":
           description: Authentication required
           content:
@@ -518,6 +518,234 @@ components:
         description:
           type: string
           example: Groceries
+
+    ExpenseOverviewResponse:
+      type: object
+      properties:
+        summary:
+          type: object
+          properties:
+            total_paid_by_me:
+              type: number
+              example: 120.0
+            total_i_owe:
+              type: number
+              example: 65.0
+            total_owed_to_me:
+              type: number
+              example: 80.0
+            net_balance:
+              type: number
+              example: 15.0
+        my_expenses:
+          type: object
+          properties:
+            total:
+              type: number
+              example: 120.0
+            bills:
+              type: array
+              items:
+                $ref: "#/components/schemas/ExpenseBill"
+            by_category:
+              type: object
+              additionalProperties:
+                type: number
+            chart:
+              type: array
+              items:
+                $ref: "#/components/schemas/ChartPoint"
+        my_debts:
+          type: object
+          properties:
+            total:
+              type: number
+              example: 65.0
+            by_person:
+              type: object
+              additionalProperties:
+                type: number
+            chart:
+              type: array
+              items:
+                $ref: "#/components/schemas/PersonBalance"
+        debts_to_me:
+          type: object
+          properties:
+            total:
+              type: number
+              example: 80.0
+            by_person:
+              type: object
+              additionalProperties:
+                type: number
+            chart:
+              type: array
+              items:
+                $ref: "#/components/schemas/PersonBalance"
+        overall:
+          type: object
+          properties:
+            total_i_owe:
+              type: number
+              example: 65.0
+            total_owed_to_me:
+              type: number
+              example: 80.0
+            net_balance:
+              type: number
+              example: 15.0
+            chart:
+              type: array
+              items:
+                $ref: "#/components/schemas/ChartPoint"
+
+    ExpenseBill:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        description:
+          type: string
+          example: Rent
+        amount:
+          type: number
+          example: 120.0
+        paid_by:
+          type: integer
+          example: 1
+        due_date:
+          type: string
+          nullable: true
+          example: "2026-10-01"
+        split_between:
+          type: array
+          items:
+            type: integer
+          example: [1, 2, 3]
+
+    ChartPoint:
+      type: object
+      properties:
+        label:
+          type: string
+          example: Net
+        value:
+          type: number
+          example: 15.0
+
+    PersonBalance:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 2
+        user_name:
+          type: string
+          example: Bob
+        amount:
+          type: number
+          example: 40.0
+
+    ExpenseOverviewResponse:
+      type: object
+      properties:
+        summary:
+          type: object
+          properties:
+            total_paid_by_me:
+              type: number
+              example: 120.0
+            total_i_owe:
+              type: number
+              example: 65.0
+            total_owed_to_me:
+              type: number
+              example: 80.0
+            net_balance:
+              type: number
+              example: 15.0
+        my_expenses:
+          type: object
+          properties:
+            total:
+              type: number
+              example: 120.0
+            bills:
+              type: array
+              items:
+                type: object
+            by_category:
+              type: object
+              additionalProperties:
+                type: number
+            chart:
+              type: array
+              items:
+                $ref: "#/components/schemas/OverviewMetric"
+        my_debts:
+          type: object
+          properties:
+            total:
+              type: number
+              example: 65.0
+            by_person:
+              type: object
+              additionalProperties:
+                type: number
+            chart:
+              type: array
+              items:
+                $ref: "#/components/schemas/OverviewMetric"
+        debts_to_me:
+          type: object
+          properties:
+            total:
+              type: number
+              example: 80.0
+            by_person:
+              type: object
+              additionalProperties:
+                type: number
+            chart:
+              type: array
+              items:
+                $ref: "#/components/schemas/OverviewMetric"
+        overall:
+          type: object
+          properties:
+            total_i_owe:
+              type: number
+              example: 65.0
+            total_owed_to_me:
+              type: number
+              example: 80.0
+            net_balance:
+              type: number
+              example: 15.0
+            chart:
+              type: array
+              items:
+                $ref: "#/components/schemas/OverviewMetric"
+
+    OverviewMetric:
+      type: object
+      properties:
+        label:
+          type: string
+          example: Net
+        value:
+          type: number
+          example: 15.0
+        user_id:
+          type: integer
+          nullable: true
+          example: 2
+        user_name:
+          type: string
+          nullable: true
+          example: Bob
         amount:
           type: string
           example: "75.00"
