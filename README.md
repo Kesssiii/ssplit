@@ -13,6 +13,15 @@ flask --app main run --debug
 
 The API runs at `http://127.0.0.1:5000`.
 
+## Frontend tests
+
+From the repository root, install the frontend dependencies and run the Svelte component tests:
+
+```powershell
+npm --prefix frontend ci
+npm --prefix frontend test
+```
+
 ## Backend areas
 
 - `GET /api/health` checks that the backend is running.
