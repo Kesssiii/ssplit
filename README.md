@@ -21,6 +21,8 @@ From the repository root with the virtual environment activated:
 python -m unittest discover -s tests -v
 ```
 
+GitHub Actions runs this test command on pushes and pull requests.
+
 ## Backend areas
 
 - `GET /api/health` checks that the backend is running.
