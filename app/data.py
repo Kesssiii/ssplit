@@ -211,5 +211,149 @@ def create_bill(user_id, description, amount, paid_by, split_between, due_date=N
     return {"id": cursor.lastrowid}
 
 
+def _as_int(value):
+    if value is None:
+        return None
+    if isinstance(value, int):
+        return value
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _parse_split_between(raw_value):
+    if raw_value in (None, ""):
+        return []
+    participants = []
+    for part in str(raw_value).split(","):
+        user_id = _as_int(part.strip())
+        if user_id is not None and user_id not in participants:
+            participants.append(user_id)
+    return participants
+
+
+def _round_money(value):
+    return round(float(value), 2)
+
+
 def get_expense_overview(user_id, start_date=None, end_date=None):
-    raise NotImplementedError
+    database = get_db()
+    query = "SELECT bills.* FROM bills WHERE 1 = 1"
+    params = []
+
+    if start_date:
+        query += " AND due_date IS NOT NULL AND due_date >= ?"
+        params.append(start_date)
+    if end_date:
+        query += " AND due_date IS NOT NULL AND due_date <= ?"
+        params.append(end_date)
+
+    query += " ORDER BY due_date ASC, id ASC"
+    cursor = database.execute(query, params)
+
+    user_names = {
+        row["id"]: row["user_name"]
+        for row in database.execute("SELECT id, user_name FROM users").fetchall()
+    }
+
+    my_expenses = {"total": 0.0, "bills": [], "by_category": {}}
+    my_debts = {"total": 0.0, "by_person": {}, "chart": []}
+    debts_to_me = {"total": 0.0, "by_person": {}, "chart": []}
+
+    for bill in cursor.fetchall():
+        bill_amount = _round_money(bill["amount"])
+        payer_id = _as_int(bill["paid_by"])
+        participants = _parse_split_between(bill["split_between"])
+        if not participants or payer_id is None:
+            continue
+
+        if payer_id == user_id:
+            my_expenses["total"] = _round_money(my_expenses["total"] + bill_amount)
+            my_expenses["bills"].append({
+                "id": bill["id"],
+                "description": bill["description"],
+                "amount": bill_amount,
+                "paid_by": payer_id,
+                "due_date": bill["due_date"],
+                "split_between": participants,
+            })
+            category_key = bill["description"].strip() or "Other"
+            my_expenses["by_category"][category_key] = my_expenses["by_category"].get(category_key, 0.0) + bill_amount
+
+        if user_id in participants:
+            share = _round_money(bill_amount / len(participants))
+            if payer_id != user_id:
+                current_debt = my_debts["by_person"].get(payer_id, 0.0)
+                my_debts["by_person"][payer_id] = _round_money(current_debt + share)
+                my_debts["total"] = _round_money(my_debts["total"] + share)
+
+        if payer_id == user_id:
+            for participant_id in participants:
+                if participant_id == user_id:
+                    continue
+                current_credit = debts_to_me["by_person"].get(participant_id, 0.0)
+                share = _round_money(bill_amount / len(participants))
+                debts_to_me["by_person"][participant_id] = _round_money(current_credit + share)
+                debts_to_me["total"] = _round_money(debts_to_me["total"] + share)
+
+    def _to_chart_entries(breakdown):
+        entries = []
+        for user_id_key, amount in sorted(breakdown.items(), key=lambda item: (-item[1], item[0])):
+            entries.append({
+                "user_id": user_id_key,
+                "user_name": user_names.get(user_id_key, "Unknown user"),
+                "amount": _round_money(amount),
+            })
+        return entries
+
+    my_debts["chart"] = _to_chart_entries(my_debts["by_person"])
+    debts_to_me["chart"] = _to_chart_entries(debts_to_me["by_person"])
+
+    overall = {
+        "total_i_owe": _round_money(my_debts["total"]),
+        "total_owed_to_me": _round_money(debts_to_me["total"]),
+        "net_balance": _round_money(debts_to_me["total"] - my_debts["total"]),
+        "chart": [
+            {"label": "I owe", "value": _round_money(my_debts["total"])},
+            {"label": "Owed to me", "value": _round_money(debts_to_me["total"])},
+            {"label": "Net", "value": _round_money(debts_to_me["total"] - my_debts["total"])},
+        ],
+    }
+
+    summary = {
+        "total_paid_by_me": _round_money(my_expenses["total"]),
+        "total_i_owe": overall["total_i_owe"],
+        "total_owed_to_me": overall["total_owed_to_me"],
+        "net_balance": overall["net_balance"],
+    }
+
+    return {
+        "summary": summary,
+        "my_expenses": {
+            "total": _round_money(my_expenses["total"]),
+            "bills": my_expenses["bills"],
+            "by_category": {key: _round_money(value) for key, value in sorted(my_expenses["by_category"].items())},
+            "chart": [
+                {"label": key, "value": _round_money(value)}
+                for key, value in sorted(my_expenses["by_category"].items(), key=lambda item: (-item[1], item[0]))
+            ],
+        },
+        "my_debts": {
+            "total": _round_money(my_debts["total"]),
+            "by_person": {
+                str(user_id): _round_money(amount)
+                for user_id, amount in sorted(my_debts["by_person"].items(), key=lambda item: (-item[1], item[0]))
+            },
+            "chart": my_debts["chart"],
+        },
+        "debts_to_me": {
+            "total": _round_money(debts_to_me["total"]),
+            "by_person": {
+                str(user_id): _round_money(amount)
+                for user_id, amount in sorted(debts_to_me["by_person"].items(), key=lambda item: (-item[1], item[0]))
+            },
+            "chart": debts_to_me["chart"],
+        },
+        "overall": overall,
+    }

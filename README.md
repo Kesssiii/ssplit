@@ -13,6 +13,16 @@ flask --app main run --debug
 
 The API runs at `http://127.0.0.1:5000`.
 
+## Run tests
+
+From the repository root with the virtual environment activated:
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+GitHub Actions runs this test command on pushes and pull requests.
+
 ## Backend areas
 
 - `GET /api/health` checks that the backend is running.

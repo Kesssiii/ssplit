@@ -35,4 +35,13 @@ def run_migrations():
             (version, migration_file.name),
         )
 
+    bill_columns = {
+        row[1]
+        for row in database.execute("PRAGMA table_info(bills)").fetchall()
+    }
+    if "split_between" not in bill_columns:
+        database.execute(
+            "ALTER TABLE bills ADD COLUMN split_between TEXT NOT NULL DEFAULT ''"
+        )
+
     database.commit()
