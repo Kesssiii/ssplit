@@ -22,6 +22,16 @@ npm --prefix frontend ci
 npm --prefix frontend test
 ```
 
+## Run backen tests
+
+From the repository root with the virtual environment activated:
+
+```powershell
+python -m unittest discover -s tests -v
+```
+
+GitHub Actions runs this test command on pushes and pull requests.
+
 ## Backend areas
 
 - `GET /api/health` checks that the backend is running.
