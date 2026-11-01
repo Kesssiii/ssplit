@@ -3,11 +3,11 @@
 
   type SidebarProps = {
     currentUser: User | null
-    currentView: 'overview' | 'schedule'
+    currentView: 'overview' | 'schedule' | 'debts' | 'bills'
     scheduledBillsCount: number
     displayName: (user: User) => string
     initials: (name: string) => string
-    onViewChange: (view: 'overview' | 'schedule') => void
+    onViewChange: (view: 'overview' | 'schedule' | 'debts' | 'bills') => void
     onSignOut: () => void
   }
 
@@ -27,6 +27,8 @@
   <p class="nav-caption">YOUR SPACE</p>
   <nav class="side-nav" aria-label="Main navigation">
     <button class:active={currentView === 'overview'} onclick={() => onViewChange('overview')}><span class="nav-symbol">⌂</span> Overview</button>
+    <button class:active={currentView === 'debts'} onclick={() => onViewChange('debts')}><span class="nav-symbol">↔</span> Debts</button>
+    <button class:active={currentView === 'bills'} onclick={() => onViewChange('bills')}><span class="nav-symbol">▤</span> Bills</button>
     <button class:active={currentView === 'schedule'} onclick={() => onViewChange('schedule')}><span class="nav-symbol">◷</span> Scheduled <span class="nav-count">{scheduledBillsCount}</span></button>
   </nav>
   <div class="sidebar-bottom">

@@ -40,9 +40,13 @@ describe('Sidebar', () => {
     })
 
     await fireEvent.click(screen.getByRole('button', { name: /scheduled/i }))
+    await fireEvent.click(screen.getByRole('button', { name: /debts/i }))
+    await fireEvent.click(screen.getByRole('button', { name: /bills/i }))
     await fireEvent.click(screen.getByRole('button', { name: /sign out/i }))
 
     expect(onViewChange).toHaveBeenCalledWith('schedule')
+    expect(onViewChange).toHaveBeenCalledWith('debts')
+    expect(onViewChange).toHaveBeenCalledWith('bills')
     expect(onSignOut).toHaveBeenCalledOnce()
   })
 })
