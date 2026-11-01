@@ -458,6 +458,26 @@ h2 { margin-bottom: 0; font-size: 18px; line-height: 1.25; }
 .icon-button { display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid transparent; border-radius: 50%; background: transparent; color: #8c9791; cursor: pointer; font-size: 21px; line-height: 1; }
 .icon-button:hover { border-color: var(--line); background: white; color: var(--coral); }
 .button-secondary { margin-top: 17px; border-color: var(--line); background: white; color: var(--green); }
+.bills-section { border-top: 1px solid var(--line); padding-top: 17px; }
+.bills-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 12px; }
+.bill-search { display: flex; width: min(100%, 390px); min-height: 40px; align-items: center; gap: 9px; border: 1px solid var(--line); border-radius: 5px; background: var(--paper); padding: 0 12px; color: #929d96; }
+.bill-search > span { font-size: 19px; line-height: 1; }
+.bill-search input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink); font-size: 12px; }
+.bill-search input::placeholder { color: #a3aca7; }
+.bills-table-wrap { overflow-x: auto; border: 1px solid var(--line); background: var(--paper); }
+.bills-table { width: 100%; border-collapse: collapse; text-align: left; }
+.bills-table th, .bills-table td { min-width: 105px; border-bottom: 1px solid #edf0ee; padding: 14px 15px; color: #65716a; font-size: 11px; vertical-align: middle; }
+.bills-table thead th { background: #f8faf8; color: #89948d; font-size: 9px; font-weight: 700; letter-spacing: .7px; text-transform: uppercase; }
+.bills-table tbody th { min-width: 140px; color: #34413a; font-weight: 600; }
+.bills-table tbody tr:last-child th, .bills-table tbody tr:last-child td { border-bottom: 0; }
+.bills-table .bill-amount-cell { min-width: 95px; color: #34413a; font-weight: 700; text-align: right; white-space: nowrap; }
+.bills-pagination { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding-top: 15px; }
+.bills-pagination > p { margin: 0; color: var(--muted); font-size: 10px; }
+.bills-pagination nav { display: flex; align-items: center; gap: 5px; }
+.page-button { min-height: 32px; border: 1px solid var(--line); border-radius: 4px; background: var(--paper); padding: 0 10px; color: #66716b; cursor: pointer; font-size: 10px; }
+.page-button:hover:not(:disabled), .page-button.active { border-color: #b6d1c2; background: var(--green-soft); color: var(--green-deep); }
+.page-button:disabled { cursor: default; opacity: .48; }
+.page-number { min-width: 32px; padding: 0 7px; }
 .button-secondary:hover { border-color: #a9c8b7; }
 
 .dialog-backdrop { position: fixed; z-index: 5; inset: 0; display: grid; overflow-y: auto; place-items: center; background: rgba(26, 37, 32, .42); padding: 22px; }
@@ -503,9 +523,10 @@ h2 { margin-bottom: 0; font-size: 18px; line-height: 1.25; }
   .app-shell { display: block; padding-bottom: 56px; }
   .sidebar { position: fixed; z-index: 3; inset: auto 0 0; display: flex; width: 100%; height: 58px; flex-direction: row; justify-content: center; border-top: 1px solid var(--line); border-right: 0; background: rgba(251, 252, 251, .97); padding: 5px 10px; backdrop-filter: blur(12px); }
   .sidebar-brand, .nav-caption, .sidebar-bottom { display: none; }
-  .side-nav { width: min(100%, 420px); grid-template-columns: 1fr 1fr; gap: 5px; }
-  .side-nav button { justify-content: center; min-height: 46px; }
-  .nav-count { margin-left: 0; }
+  .side-nav { width: min(100%, 540px); grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .side-nav button { position: relative; justify-content: center; gap: 6px; min-height: 46px; padding: 0 5px; font-size: 11px; }
+  .nav-symbol { width: 14px; flex: 0 0 14px; }
+  .nav-count { position: absolute; right: 4px; width: 17px; height: 17px; margin-left: 0; font-size: 9px; }
   .workspace { padding: 0 20px 20px; }
   .topbar { height: 59px; }
   .page-heading { align-items: flex-start; padding: 27px 0 19px; }
@@ -522,6 +543,9 @@ h2 { margin-bottom: 0; font-size: 18px; line-height: 1.25; }
   .bottom-note p { flex-basis: calc(100% - 40px); }
   .bottom-note .text-button { margin-left: 30px; padding: 0; }
   .workspace-footer span:last-child { text-align: right; }
+  .bills-pagination { align-items: flex-start; flex-direction: column; }
+  .bills-pagination nav { width: 100%; justify-content: center; }
+  .page-button { padding: 0 8px; }
   .schedule-heading { display: block; }
   .schedule-heading .heading-date { max-width: none; padding-top: 10px; text-align: left; }
 }

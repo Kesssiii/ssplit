@@ -4,9 +4,11 @@
   import PaymentDialog from './lib/PaymentDialog.svelte'
   import OverviewPanel from './lib/OverviewPanel.svelte'
   import SchedulePanel from './lib/SchedulePanel.svelte'
+  import DebtPanel from './lib/DebtPanel.svelte'
+  import BillsPanel from './lib/BillsPanel.svelte'
   import Sidebar from './lib/Sidebar.svelte'
   import { AuthService } from './lib/AuthService'
-  import { SplitService, type Bill, type ScheduledBill, type User } from './lib/SplitService'
+  import { SplitService, type Bill, type ExpenseOverview, type ScheduledBill, type User } from './lib/SplitService'
   import {
     createPaymentPayload,
     displayName,
@@ -30,7 +32,8 @@
   let checkingSession = $state(true)
   let busy = $state(false)
   let errorMessage = $state('')
-  let currentView = $state<'overview' | 'schedule'>('overview')
+  let currentView = $state<'overview' | 'schedule' | 'debts' | 'bills'>('overview')
+  let expenseOverview = $state<ExpenseOverview | null>(null)
   let paymentDialogOpen = $state(false)
   let paymentType = $state<'once' | 'recurring'>('once')
   let description = $state('')
@@ -50,6 +53,7 @@
     users = dashboard.users
     bills = dashboard.bills
     scheduledBills = dashboard.scheduledBills
+    expenseOverview = dashboard.expenseOverview
     if (currentUser && paidBy === '') paidBy = currentUser.id
     if (currentUser && splitBetween.length === 0) splitBetween = [currentUser.id]
   }
@@ -93,6 +97,7 @@
     users = []
     bills = []
     scheduledBills = []
+    expenseOverview = null
     currentView = 'overview'
   }
 
@@ -191,7 +196,7 @@
     />
     <main class="workspace">
       <header class="topbar">
-        <div class="breadcrumb"><span>Workspace</span><span class="crumb-divider">/</span><strong>{currentView === 'overview' ? 'Overview' : 'Scheduled payments'}</strong></div>
+        <div class="breadcrumb"><span>Workspace</span><span class="crumb-divider">/</span><strong>{currentView === 'overview' ? 'Overview' : currentView === 'schedule' ? 'Scheduled payments' : currentView === 'debts' ? 'Debts' : 'Bills'}</strong></div>
         <button class="button button-primary top-add" onclick={openPaymentDialog}><span aria-hidden="true">+</span> New payment</button>
       </header>
       {#if errorMessage && !paymentDialogOpen}<p class="page-error" role="alert">{errorMessage}</p>{/if}
@@ -211,11 +216,30 @@
           formatDate={formatDateFn}
           money={moneyFn}
         />
-      {:else}
+      {:else if currentView === 'schedule'}
         <SchedulePanel
           scheduledBills={scheduledBills}
           onOpenPaymentDialog={openPaymentDialog}
           onDeleteScheduledBill={removeScheduledBill}
+          formatDate={formatDateFn}
+          money={moneyFn}
+        />
+      {:else if currentView === 'debts'}
+        {#if expenseOverview}
+          <DebtPanel
+            {expenseOverview}
+            initials={initialsFn}
+            money={moneyFn}
+          />
+        {:else}
+          <p class="page-error" role="alert">Debt information is unavailable.</p>
+        {/if}
+      {:else}
+        <BillsPanel
+          {bills}
+          {users}
+          currentUser={currentUser}
+          displayName={displayNameFn}
           formatDate={formatDateFn}
           money={moneyFn}
         />
